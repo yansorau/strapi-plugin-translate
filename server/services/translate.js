@@ -41,15 +41,18 @@ module.exports = ({ strapi }) => ({
         const translateResult = await strapi
           .plugin('translate')
           .provider.translate({
-            text: textsToTranslate,
+            text: textsToTranslate.flat(),
             targetLocale,
             sourceLocale,
             priority,
             format,
           })
-
+        let index = 0
+        let result = textsToTranslate.map(item =>
+          Array.isArray(item) ? item.map(() => translateResult[index++]) : translateResult[index++]
+        )
         groupedFields[format].forEach(({ field }, index) => {
-          set(translatedData, field, translateResult[index])
+          set(translatedData, field, result[index])
         })
       })
     )
